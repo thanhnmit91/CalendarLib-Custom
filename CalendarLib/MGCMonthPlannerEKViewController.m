@@ -33,7 +33,7 @@
 #import "MGCMonthPlannerEKViewController.h"
 #import "MGCStandardEventView.h"
 #import "NSCalendar+MGCAdditions.h"
-#import "OSCache.h"
+#import <OSCache/OSCache.h>
 #import "MGCEventKitSupport.h"
 
 
