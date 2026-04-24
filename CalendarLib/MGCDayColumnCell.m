@@ -1,0 +1,156 @@
+//
+//  MGCDayColumnCell.m
+//  Graphical Calendars Library for iOS
+//
+//  Distributed under the MIT License
+//  Get the latest version from here:
+//
+//	https://github.com/jumartin/Calendar
+//
+//  Copyright (c) 2014-2015 Julien Martin
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+//
+//  The above copyright notice and this permission notice shall be included in all
+//  copies or substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//  SOFTWARE.
+//
+
+#import "MGCDayColumnCell.h"
+
+//Hoang update dotSize 4 -> 5
+static const CGFloat dotSize = 5;
+
+
+@interface MGCDayColumnCell ()
+
+@property (nonatomic) UIActivityIndicatorView *activityIndicatorView;
+@property (nonatomic) CALayer *leftBorder;
+
+@end
+
+
+@implementation MGCDayColumnCell
+
+- (instancetype)initWithFrame:(CGRect)frame
+{
+    if (self = [super initWithFrame:frame]) {
+		_markColor = [UIColor blackColor];
+		_dotColor = [UIColor blueColor];
+        _separatorColor = [UIColor lightGrayColor];
+		
+        _dayOfWeekLabel = [[UILabel alloc] init];
+		_dayOfWeekLabel.numberOfLines = 1;
+		_dayOfWeekLabel.adjustsFontSizeToFitWidth = YES;
+		_dayOfWeekLabel.minimumScaleFactor = .7;
+        [_dayOfWeekLabel sizeToFit];
+        [self.contentView addSubview:_dayOfWeekLabel];
+        
+        _dayLabel = [[UILabel alloc] init];
+        _dayLabel.numberOfLines = 0;
+        _dayLabel.adjustsFontSizeToFitWidth = YES;
+        _dayLabel.minimumScaleFactor = .7;
+        [_dayLabel sizeToFit];
+        [self.contentView addSubview:_dayLabel];
+        
+        _selectedView = [[UIView alloc] init];
+        _selectedView.layer.cornerRadius = 12;
+        _selectedView.backgroundColor = [UIColor colorWithRed:7.0/255.0 green:87.0/255.0 blue:106.0/255.0 alpha:1];
+        [self.contentView insertSubview:_selectedView belowSubview:_dayOfWeekLabel];
+        
+        _dayOfWeekLabel.translatesAutoresizingMaskIntoConstraints = false;
+        _dayLabel.translatesAutoresizingMaskIntoConstraints = false;
+        _selectedView.translatesAutoresizingMaskIntoConstraints = false;
+        
+        if (@available(iOS 9.0, *)) {
+            [[_dayOfWeekLabel.topAnchor constraintEqualToAnchor:self.contentView.topAnchor constant:8] setActive:true];
+            [[_dayOfWeekLabel.leftAnchor constraintEqualToAnchor:self.contentView.leftAnchor constant:0] setActive:true];
+            [[_dayOfWeekLabel.rightAnchor constraintEqualToAnchor:self.contentView.rightAnchor constant:0] setActive:true];
+            [[_dayOfWeekLabel.centerXAnchor constraintEqualToAnchor:self.contentView.centerXAnchor constant:0] setActive:true];
+            
+            [[_dayLabel.topAnchor constraintEqualToAnchor:self.dayOfWeekLabel.bottomAnchor constant:4] setActive:true];
+            [[_dayLabel.leftAnchor constraintEqualToAnchor:self.contentView.leftAnchor constant:0] setActive:true];
+            [[_dayLabel.rightAnchor constraintEqualToAnchor:self.contentView.rightAnchor constant:0] setActive:true];
+            [[_dayLabel.centerXAnchor constraintEqualToAnchor:self.contentView.centerXAnchor constant:0] setActive:true];
+            
+            [[_selectedView.widthAnchor constraintEqualToConstant:24] setActive:true];
+            [[_selectedView.heightAnchor constraintEqualToConstant:24] setActive:true];
+            [[_selectedView.centerXAnchor constraintEqualToAnchor:self.dayLabel.centerXAnchor constant:0] setActive:true];
+            [[_selectedView.centerYAnchor constraintEqualToAnchor:self.dayLabel.centerYAnchor constant:0] setActive:true];
+
+        }
+        
+		_leftBorder = [CALayer layer];
+		[self.contentView.layer addSublayer:_leftBorder];
+	}
+    return self;
+}
+
+- (void)setActivityIndicatorVisible:(BOOL)visible
+{
+    if (!visible) {
+        [self.activityIndicatorView stopAnimating];
+    }
+    else if (self.headerHeight > 0) {
+        if (!self.activityIndicatorView) {
+            self.activityIndicatorView = [[UIActivityIndicatorView alloc]initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+            self.activityIndicatorView.color = [UIColor blackColor];
+            self.activityIndicatorView.transform = CGAffineTransformMakeScale(0.6, 0.6);
+            [self.contentView addSubview:self.activityIndicatorView];
+        }
+        [self.activityIndicatorView startAnimating];
+    }
+}
+
+- (void)prepareForReuse
+{
+    [super prepareForReuse];
+    
+    self.accessoryTypes = MGCDayColumnCellAccessoryNone;
+    self.markColor = [UIColor blackColor];
+    [self setActivityIndicatorVisible:NO];
+}
+
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+    
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
+    
+    // border
+    CGRect borderFrame = CGRectZero;
+    if (self.accessoryTypes & MGCDayColumnCellAccessoryBorder) {
+        borderFrame = CGRectMake(0, self.headerHeight, 1./[UIScreen mainScreen].scale, self.contentView.bounds.size.height-self.headerHeight);
+    }
+    else if (self.accessoryTypes & MGCDayColumnCellAccessorySeparator) {
+        borderFrame = CGRectMake(0, 0, 2./[UIScreen mainScreen].scale, self.contentView.bounds.size.height);
+    }
+    
+    self.leftBorder.frame = borderFrame;
+    self.leftBorder.borderColor = self.separatorColor.CGColor;
+    self.leftBorder.borderWidth = borderFrame.size.width / 2.;
+    
+    [CATransaction commit];
+
+}
+
+- (void)setAccessoryTypes:(MGCDayColumnCellAccessoryType)accessoryTypes
+{
+    _accessoryTypes = accessoryTypes;
+    [self setNeedsLayout];
+}
+
+@end
