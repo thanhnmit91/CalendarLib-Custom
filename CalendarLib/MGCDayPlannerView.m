@@ -41,7 +41,7 @@
 #import "MGCInteractiveEventView.h"
 #import "MGCTimeRowsView.h"
 #import "MGCAlignedGeometry.h"
-#import "OSCache.h"
+#import <OSCache/OSCache.h>
 #import "Constant.h"
 
 
