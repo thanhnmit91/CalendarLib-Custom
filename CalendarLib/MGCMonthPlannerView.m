@@ -30,7 +30,7 @@
 
 #import "MGCMonthPlannerView.h"
 #import "NSCalendar+MGCAdditions.h"
-#import <OrderedDictionary/OrderedDictionary.h>
+#import "OrderedDictionary.h"
 #import "MGCReusableObjectQueue.h"
 #import "MGCMonthPlannerViewLayout.h"
 #import "MGCMonthPlannerViewDayCell.h"
